@@ -22,14 +22,14 @@ pub fn main() !void {
     defer hashmap.deinit();
 
     // main loop
-    var input: []const u8 = undefined;
+    var input_buffer: [4096]u8 = undefined;
+    var stdin_bufio = std.io.bufferedReader(stdin).reader();
     while (true) {
         try stdout.print("()> ", .{});
-        input = stdin.readUntilDelimiterAlloc(allocator, '\n', 4096) catch {
+        const input = stdin_bufio.readUntilDelimiter(&input_buffer, '\n') catch {
             minilib.flush(stdin);
             continue;
         };
-        defer allocator.free(input);
         switch (try minilib.exec(input, &hashmap, counting_allocator)) {
             0 => void{},
             1 => try stdout.print("{s}: command not found...\n", .{input}),

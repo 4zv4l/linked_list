@@ -5,8 +5,9 @@ const CountingAllocator = @import("./alloc.zig").CountingAllocator;
 /// flush stdin
 pub fn flush(stdin: std.io.Reader(std.fs.File, std.os.ReadError, std.fs.File.read)) void {
     var buf: [256]u8 = undefined;
+    var stdin_bufio = std.io.bufferedReader(stdin).reader();
     while (true) {
-        _ = stdin.readUntilDelimiter(&buf, '\n') catch |err| switch (err) {
+        _ = stdin_bufio.readUntilDelimiter(&buf, '\n') catch |err| switch (err) {
             error.StreamTooLong => continue, // keep reading data
             else => return, // give up on I/O errors
         };
@@ -44,8 +45,7 @@ pub fn exec(bcmd: []const u8, hash: *HashMap, allocator: CountingAllocator) !u8 
     } else if (cmp(cmd, "clear")) {
         std.debug.print("\x1Bc", .{});
     } else if (cmp(cmd, "heap")) {
-        std.debug.print("wPrompt  => {}\n", .{allocator.allocated_bytes});
-        std.debug.print("w/Prompt => {}\n", .{allocator.allocated_bytes - bcmd.len});
+        std.debug.print("=> {}\n", .{allocator.allocated_bytes});
     } else if (cmp(cmd[0..3], "add")) {
         if (cmd.len <= 4) {
             return 4;
