@@ -25,9 +25,9 @@ pub const HashMap = struct {
     pub fn show(self: *HashMap) void {
         for (self.table) |*t, index| {
             if (t.length == 0) {
-                print("[{d}]: {{}}\n", .{index});
+                print("[{d}]: {{}}\n", .{index + 1});
             } else {
-                print("[{d}]: {{\n", .{index});
+                print("[{d}]: {{\n", .{index + 1});
                 t.show();
                 print("}}\n", .{});
             }
