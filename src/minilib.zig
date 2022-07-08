@@ -19,8 +19,22 @@ pub fn cmp(str1: []const u8, str2: []const u8) bool {
     return std.mem.containsAtLeast(u8, str1, 1, str2);
 }
 
+/// trim removes all spaces from the beginning and the end of the string
+pub fn trim(str: []const u8) []const u8 {
+    // start from beginning
+    var start: usize = 0;
+    while (str[start] == ' ') : (start += 1) {}
+
+    // start from end
+    var end: usize = str.len - 1;
+    while (str[end] == ' ') : (end -= 1) {}
+
+    return str[start .. end + 1];
+}
+
 /// check command and execute it
-pub fn exec(cmd: []const u8, hash: *HashMap, allocator: CountingAllocator) !u8 {
+pub fn exec(bcmd: []const u8, hash: *HashMap, allocator: CountingAllocator) !u8 {
+    const cmd = trim(bcmd);
     if (cmp(cmd, "exit")) {
         return 3;
     } else if (cmp(cmd, "help")) {
@@ -31,7 +45,7 @@ pub fn exec(cmd: []const u8, hash: *HashMap, allocator: CountingAllocator) !u8 {
         std.debug.print("\x1Bc", .{});
     } else if (cmp(cmd, "heap")) {
         std.debug.print("wPrompt  => {}\n", .{allocator.allocated_bytes});
-        std.debug.print("w/Prompt => {}\n", .{allocator.allocated_bytes - 4});
+        std.debug.print("w/Prompt => {}\n", .{allocator.allocated_bytes - bcmd.len});
     } else if (cmp(cmd[0..3], "add")) {
         if (cmd.len <= 4) {
             return 4;
